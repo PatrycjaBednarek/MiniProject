@@ -74,6 +74,16 @@ def update_products():
     sql = f"UPDATE products SET name=\"{new_product_name}\", price={new_product_price} WHERE product_id={product_id} "
     insert_or_update(query=sql)
 
+def delete_product():
+    view_items("products")
+    item_id = int(input("Type the id of the product you would like to delete: "))
+    cursor = connection.cursor()
+    sql = f"DELETE FROM products WHERE product_id = {item_id}"
+    cursor.execute(sql)
+    connection.commit()
+    cursor.close()
+    print(cursor.rowcount, "record(s) deleted")
+
 
 def add_new_courier():
     courier_name = input("Type the name of the courier you would like to add: ").title().strip()
@@ -86,11 +96,39 @@ def add_new_courier():
 
 
 def update_courier():
-    return
+    view_items("products")
+    product_id = int(input("Please specify the id of the product you want to update: "))
+    
+    # get current name and price associated with the product_id above
+    sql = f"SELECT name, price FROM products WHERE product_id = {product_id}"
+    original_product_name, original_product_price = retrieve_result(query=sql)
+    # can do try and excet to check if product id is correct
+    # specify the updated name and price
+    new_product_name = input("What is the name of your new product? Leave blank if you don't want to update the name: ")        
+    new_product_price = input(f"What is the price? Leave blank if you don't want to change the price: ")
+
+    if len(new_product_name.strip()) == 0:
+        new_product_name = original_product_name
+    
+    if len(new_product_price.strip()) == 0:
+        new_product_price = original_product_price
+
+    sql = f"UPDATE products SET name=\"{new_product_name}\", price={new_product_price} WHERE product_id={product_id} "
+    insert_or_update(query=sql)
 
 
 def delete_courier():
-    return
+    view_items("couriers")
+    courier_id = int(input("Type the id of the courier you would like to delete: "))
+    cursor = connection.cursor()
+    try:
+        sql = f"DELETE FROM couriers WHERE courier_id = {courier_id}"
+        cursor.execute(sql)
+        connection.commit()
+        cursor.close()
+        print(cursor.rowcount, "record(s) deleted")
+    except: pymysql.IntegrityError
+    print("Can not delete a courier, please delete the order he is assigned to first")
 
 
 def create_new_order():
@@ -121,7 +159,6 @@ def update_order():
 
 def delete_order():
     pass
-
 
 
 
