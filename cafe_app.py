@@ -39,17 +39,31 @@ def add_new_product():
     cursor.close()
 
 
+def retrieve_result(query):
+    cursor = connection.cursor()
+    cursor.execute(query)
+    results = cursor.fetchone()
+    cursor.close()
+    return results
+
+def insert_or_update(query):
+    cursor = connection.cursor()
+    cursor.execute(query)
+    connection.commit()
+    cursor.close()
+
+
 def update_products():
-    view_items(table_name="products")
+    view_items("products")
     product_id = int(input("Please specify the id of the product you want to update: "))
     
     # get current name and price associated with the product_id above
     sql = f"SELECT name, price FROM products WHERE product_id = {product_id}"
-    original_product_name, original_product_price = retrieve_result(sql)
-    
+    original_product_name, original_product_price = retrieve_result(query=sql)
+    # can do try and excet to check if product id is correct
     # specify the updated name and price
     new_product_name = input("What is the name of your new product? Leave blank if you don't want to update the name: ")        
-    new_product_price = input(f"What is the price? Leave blank if you don't want to change the price")
+    new_product_price = input(f"What is the price? Leave blank if you don't want to change the price: ")
 
     if len(new_product_name.strip()) == 0:
         new_product_name = original_product_name
@@ -79,14 +93,23 @@ def delete_courier():
     return
 
 
-def create_order():
+def create_new_order():
     customer_name = input("Type the customer name: ").title().strip()
-    customer_address = float(input (f"Type the price of {item_name}: "))
+    customer_address = input (f"Type the address of {customer_name}: ").title().strip()
+    customer_phone_number = input(f"Type the phone number of {customer_name}: ").title().strip()
+    
+    view_items("products")
+    items = input("Please add a coma separated lis of product ids e.g. 1,2,3: ").title().strip()
+    # may want to do some checks above
+    view_items("couriers")
+    courier_id = int(input(f"Please select a courier from the courier table displayed above: "))
+    order_status = 1
+    sql = f"INSERT INTO orders (customer_name, customer_address, customer_phone_number, courier_id, order_status, items) VALUES (\"{customer_name}\", \"{customer_address}\", \"{customer_phone_number}\", {courier_id}, \"{order_status}\", \"{items}\")"
     cursor = connection.cursor()
-    sql = f"INSERT INTO products (name, price) VALUES (\"{item_name}\", {item_price})"
     cursor.execute(sql)
     connection.commit()
     cursor.close()
+    print("You have correctly placed the order!")
     return
 
 
@@ -97,6 +120,7 @@ def update_order():
     return
 
 def delete_order():
+    pass
 
 
 
@@ -166,7 +190,7 @@ while True:
         elif order_menu_input == 1:
             view_items(table_name = "orders")
         elif order_menu_input == 2:
-            add_new_order()
+            create_new_order()
         elif order_menu_input == 3:
             update_order_status()
         elif order_menu_input == 4:
