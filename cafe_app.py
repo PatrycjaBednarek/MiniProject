@@ -29,6 +29,28 @@ def view_items(table_name):
     cursor.close()
     return results
 
+def view_orders():
+    # possible to use pandas instead
+
+    cursor = connection.cursor()
+    sql = f"SELECT * FROM orders"
+
+        # Gets all rows from the result
+    
+    cursor.execute(sql)
+    results = cursor.fetchall()
+    for row in results:
+        print(f"""Order ID: {(row[0])}, 
+        Customer name: {row[1]}, 
+        Customer address: {row[2]}, 
+        Phone number: {row[3]}, 
+        Courier ID: {row[4]}, 
+        Order status: {row[5]},
+        Items ordered: {row[6]}'
+        """)
+    cursor.close()
+    return results
+
 
 def add_new_product():
     item_name = input("Type the name of the product you would like to add: ").title().strip()
@@ -47,6 +69,7 @@ def retrieve_result(query):
     cursor.close()
     return results
 
+
 def insert_or_update(query):
     cursor = connection.cursor()
     cursor.execute(query)
@@ -64,7 +87,7 @@ def update_products():
     # can do try and excet to check if product id is correct
     # specify the updated name and price
     new_product_name = input("What is the name of your new product? Leave blank if you don't want to update the name: ")        
-    new_product_price = input(f"What is the price? Leave blank if you don't want to change the price: ")
+    new_product_price = float(input(f"What is the price? Leave blank if you don't want to change the price: "))
 
     if len(new_product_name.strip()) == 0:
         new_product_name = original_product_name
@@ -137,7 +160,7 @@ def create_new_order():
     customer_address = input (f"Type the address of {customer_name}: ").title().strip()
     customer_phone_number = input(f"Type the phone number of {customer_name}: ").title().strip()
     
-    view_items("products")
+    view_orders()
     items = input("Please add a coma separated lis of product ids e.g. 1,2,3: ").title().strip()
     # may want to do some checks above
     view_items("couriers")
@@ -152,7 +175,7 @@ def create_new_order():
 
 
 def update_order_status():
-    view_items("orders")
+    view_orders()
     order_id = int(input("Please specify the id of the order you want to update: "))
     view_items("orderstatus")
     # get current name and phone associated with the courier_id above
@@ -167,21 +190,25 @@ def update_order_status():
     sql = f"UPDATE orders SET status=\"{new_order_status}\""
     insert_or_update(query=sql)
     print(cursor.rowcount, "record(s) updated")
+    view_orders()
 
 
 def update_order():
-    view_items("orders")
+    view_orders()
     order_id = int(input("Please specify the id of the order you want to update: "))
     
 
     # get current name and price associated with the product_id above
-    sql = f"SELECT customer_name, customer_address, customer_phone_number FROM orders WHERE order_id = {order_id}"
-    original_customer_name, original_customer_address, original_phone_number = retrieve_result(query=sql)
-    # can do try and excet to check if product id is correct
+    sql = f"SELECT customer_name, customer_address, customer_phone_number, items FROM orders WHERE order_id = {order_id}"
+    original_customer_name, original_customer_address, original_phone_number, original_items = retrieve_result(query=sql)
+    # can do try and except to check if product id is correct
     # specify the updated name and price
     new_customer_name = input("What is the name of your customer? Leave blank if you don't want to update the name: ").title().strip()      
     new_customer_address = input(f"What is the new address? Leave blank if you don't want to change the address: ").title().strip()
     new_customer_phone = input(f"What is the new phone number? Leave blank if you don't want to change the phone number: ").title().strip()
+    view_items("products")
+    new_items = input("Please add a coma separated list of product IDs you would like to update e.g. 1,2,3: ").title().strip()
+
     if len(new_customer_name.strip()) == 0:
         new_customer_name = original_customer_name
     
@@ -190,11 +217,22 @@ def update_order():
 
     if len(new_customer_phone.strip()) == 0:
         new_customer_phone = original_phone_number
+    
+    if len(new_items.strip()) == 0:
+        new_items = original_items
 
-    sql = f"UPDATE orders SET customer_name=\"{new_customer_name}\", customer_address=\"{new_customer_address}\", customer_phone_number=\"{new_customer_phone}\" WHERE order_id={order_id} "
+    sql = f"""UPDATE orders SET 
+    customer_name = \"{new_customer_name}\", 
+    customer_address = \"{new_customer_address}\", 
+    customer_phone_number=\"{new_customer_phone}\",
+    items = \"{new_items}\"
+    WHERE order_id={order_id}"""
+
     insert_or_update(query=sql)
-        print(cursor.rowcount, "record(s) updated")
+    print(cursor.rowcount, "record(s) updated")
+    view_orders()
 
+    
 def delete_order():
     view_items("orders")
     order_id = int(input("Type the id of the order you would like to delete: "))
@@ -213,7 +251,12 @@ def delete_order():
 
 while True:
     # see main menu
-    print("The main menu: press 0 to exit the app, 1 to see the products menu, 2 to see the courier menu, 3 to see orders menu")
+    print("""The main menu: 
+    press 0 to exit the app, 
+    1 to see the products menu, 
+    2 to see the courier menu, 
+    3 to see orders menu""")
+
     main_menu_option = int(input("Please select your choice from the main menu: "))
 
     if main_menu_option == 0:
@@ -232,7 +275,7 @@ while True:
             continue
 
         elif product_menu_input == 1:
-            view_items(table_name = "products")
+            view_items("products")
         elif product_menu_input == 2:
             add_new_product()
         elif product_menu_input == 3:
@@ -252,7 +295,7 @@ while True:
             continue
 
         elif courier_menu_input == 1:
-            view_items(table_name = "couriers")
+            view_items("couriers")
         elif courier_menu_input == 2:
             add_new_courier()
         elif courier_menu_input == 3:
@@ -274,7 +317,7 @@ while True:
             continue
 
         elif order_menu_input == 1:
-            view_items(table_name = "orders")
+            view_items("orders")
         elif order_menu_input == 2:
             create_new_order()
         elif order_menu_input == 3:
