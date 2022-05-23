@@ -24,7 +24,8 @@ def view_items(table_name):
         # print(f'First Name: {str(row[0])}, Last Name: {row[1]}, Age: {row[2]}')
     cursor.execute(sql)
     results = cursor.fetchall()
-    print(results)
+    for row in results:
+        print(row)
     cursor.close()
     return results
 
@@ -96,24 +97,24 @@ def add_new_courier():
 
 
 def update_courier():
-    view_items("products")
-    product_id = int(input("Please specify the id of the product you want to update: "))
+    view_items("couriers")
+    courier_id = int(input("Please specify the id of the product you want to update: "))
     
-    # get current name and price associated with the product_id above
-    sql = f"SELECT name, price FROM products WHERE product_id = {product_id}"
-    original_product_name, original_product_price = retrieve_result(query=sql)
-    # can do try and excet to check if product id is correct
+    # get current name and phone associated with the courier_id above
+    sql = f"SELECT name, phone FROM couriers WHERE courier_id = {courier_id}"
+    original_courier_name, original_courier_phone = retrieve_result(query=sql)
+    # can do try and execute to check if product id is correct
     # specify the updated name and price
-    new_product_name = input("What is the name of your new product? Leave blank if you don't want to update the name: ")        
-    new_product_price = input(f"What is the price? Leave blank if you don't want to change the price: ")
+    new_courier_name = input("What is the name of the courier? Leave blank if you don't want to update the name: ")        
+    new_courier_phone = input(f"What is the phone number of {new_courier_name}? Leave blank if you don't want to change the phone number: ")
 
-    if len(new_product_name.strip()) == 0:
-        new_product_name = original_product_name
+    if len(new_courier_name.strip()) == 0:
+        new_courier_name = original_courier_name
     
-    if len(new_product_price.strip()) == 0:
-        new_product_price = original_product_price
+    if len(new_courier_phone.strip()) == 0:
+        new_courier_phone = original_courier_phone
 
-    sql = f"UPDATE products SET name=\"{new_product_name}\", price={new_product_price} WHERE product_id={product_id} "
+    sql = f"UPDATE couriers SET name=\"{new_courier_name}\", phone={new_courier_phone} WHERE courier_id={courier_id} "
     insert_or_update(query=sql)
 
 
@@ -148,17 +149,65 @@ def create_new_order():
     connection.commit()
     cursor.close()
     print("You have correctly placed the order!")
-    return
 
 
 def update_order_status():
-    return
+    view_items("orders")
+    order_id = int(input("Please specify the id of the order you want to update: "))
+    view_items("orderstatus")
+    # get current name and phone associated with the courier_id above
+    sql = f"SELECT status FROM orders WHERE order_id = {order_id}"
+    original_order_status = retrieve_result(query=sql)
+    # can do try and execute to check if product id is correct
+    # specify the updated name and price
+    new_order_status = input("What is the new order status? Leave blank if you don't want to update the status: ")        
+    if len(new_order_status.strip()) == 0:
+        new_order_status = original_order_status
+
+    sql = f"UPDATE orders SET status=\"{new_order_status}\""
+    insert_or_update(query=sql)
+    print(cursor.rowcount, "record(s) updated")
+
 
 def update_order():
-    return
+    view_items("orders")
+    order_id = int(input("Please specify the id of the order you want to update: "))
+    
+
+    # get current name and price associated with the product_id above
+    sql = f"SELECT customer_name, customer_address, customer_phone_number FROM orders WHERE order_id = {order_id}"
+    original_customer_name, original_customer_address, original_phone_number = retrieve_result(query=sql)
+    # can do try and excet to check if product id is correct
+    # specify the updated name and price
+    new_customer_name = input("What is the name of your customer? Leave blank if you don't want to update the name: ").title().strip()      
+    new_customer_address = input(f"What is the new address? Leave blank if you don't want to change the address: ").title().strip()
+    new_customer_phone = input(f"What is the new phone number? Leave blank if you don't want to change the phone number: ").title().strip()
+    if len(new_customer_name.strip()) == 0:
+        new_customer_name = original_customer_name
+    
+    if len(new_customer_address.strip()) == 0:
+        new_customer_address = original_customer_address
+
+    if len(new_customer_phone.strip()) == 0:
+        new_customer_phone = original_phone_number
+
+    sql = f"UPDATE orders SET customer_name=\"{new_customer_name}\", customer_address=\"{new_customer_address}\", customer_phone_number=\"{new_customer_phone}\" WHERE order_id={order_id} "
+    insert_or_update(query=sql)
+        print(cursor.rowcount, "record(s) updated")
 
 def delete_order():
-    pass
+    view_items("orders")
+    order_id = int(input("Type the id of the order you would like to delete: "))
+    cursor = connection.cursor()
+    #try:
+    sql = f"DELETE FROM orders WHERE order_id = {order_id}"
+    cursor.execute(sql)
+    connection.commit()
+    cursor.close()
+    print(cursor.rowcount, "record(s) deleted")
+    #except: pymysql.IntegrityError
+    #print("Can not delete a courier, please delete the order he is assigned to first")
+    
 
 
 
