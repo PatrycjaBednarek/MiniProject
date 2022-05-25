@@ -64,7 +64,10 @@ def create_new_order():
 def update_order_status():
 
     view_orders()
-    order_id = int(input("Please specify the id of the order you want to update: "))
+    order_id = input("Please specify the id of the order you want to update: ")
+    if len(order_id) == 0:
+        print(f"Error: input cannot be blank")
+        return
 
     view_items("orderstatus")
 
@@ -89,7 +92,10 @@ def update_order():
 
     view_orders()
 
-    order_id = int(input("Please specify the id of the order you want to update: "))
+    order_id = input("Please specify the id of the order you want to update: ")
+    if len(order_id) == 0:
+        print(f"Error: input cannot be blank")
+        return
 
     sql = f"SELECT customer_name, customer_address, customer_phone_number, courier_id, items FROM orders WHERE order_id = {order_id}"
 
@@ -124,17 +130,20 @@ def update_order():
     if len(new_courier) == 0:
         new_courier = original_courier
 
-    sql = f"""UPDATE orders SET 
-    customer_name = \"{new_customer_name}\", 
-    customer_address = \"{new_customer_address}\", 
-    customer_phone_number=\"{new_customer_phone}\",
-    courier_id = {new_courier},
-    items = \"{new_items}\"
-    WHERE order_id={order_id}"""
+    try:
+        sql = f"""UPDATE orders SET 
+        customer_name = \"{new_customer_name}\", 
+        customer_address = \"{new_customer_address}\", 
+        customer_phone_number=\"{new_customer_phone}\",
+        courier_id = {new_courier},
+        items = \"{new_items}\"
+        WHERE order_id={order_id}"""
+        insert_or_update(query=sql)
+        print("record updated")
 
-    insert_or_update(query=sql)
-    print("record updated")
-
+    except pymysql.IntegrityError or pymysql.OperationalError:
+        print("Make sure you input an existing courier ID")
+   
 
 def delete_order():
 
@@ -147,7 +156,7 @@ def delete_order():
     try:
         sql = f"DELETE FROM orders WHERE order_id = {order_id}"
         insert_or_update(query = sql)
-        print("record(s) deleted")
+        print("record deleted")
 
     except pymysql.ProgrammingError:
         print("Please enter a valid order ID")

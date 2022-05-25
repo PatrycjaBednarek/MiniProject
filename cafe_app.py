@@ -2,7 +2,7 @@ import products
 import orders
 import couriers
 import connection
-from connection import view_items, retrieve_result, insert_or_update
+from connection import view_items
 
 
 

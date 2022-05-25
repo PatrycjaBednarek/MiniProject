@@ -20,6 +20,9 @@ def update_courier():
 
     view_items("couriers")
     courier_id = int(input("Please specify the id of the courier you want to update: "))
+    if len(courier_id) == 0:
+        print(f"Error: input cannot be blank")
+        return
 
     sql = f"SELECT name, phone FROM couriers WHERE courier_id = {courier_id}"
     original_courier_name, original_courier_phone = retrieve_result(query=sql)

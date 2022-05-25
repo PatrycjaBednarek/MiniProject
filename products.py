@@ -50,7 +50,7 @@ def delete_product():
         insert_or_update(query = sql)
         print("record deleted")
     except pymysql.OperationalError:
-        print("Insert a correct order ID")
+        print("Insert a correct product ID")
         return
 
     
