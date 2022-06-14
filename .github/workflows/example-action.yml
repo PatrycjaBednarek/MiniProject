@@ -17,4 +17,6 @@ jobs:
       - name: list-dir
         run: ls -laR # Recursively list directory contents
       - name: Count lines
-        run: pygount --format=summary
+        run: pip install pygount
+             pygount --suffix=cfg,py,yml
+             pygount --format=summary
