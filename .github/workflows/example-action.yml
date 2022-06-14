@@ -1,6 +1,11 @@
 name: list-repo
 
-on: push
+on: 
+  push:
+    branches:    
+        - main
+
+
 
 jobs:
   list-repo-files:
